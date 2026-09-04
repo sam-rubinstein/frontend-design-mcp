@@ -37,7 +37,7 @@ test("Claude, Grok, and Codex plugin metadata exposes the shared skill and MCP s
     const servers = mcp.mcpServers as JsonObject;
     const design = servers.design as JsonObject;
     assert.equal(design.command, "npx");
-    assert.deepEqual(design.args, ["-y", "frontend-design-mcp@0.1.0"]);
+    assert.deepEqual(design.args, ["-y", "github:sam-rubinstein/frontend-design-mcp#19efd6e"]);
     assert.deepEqual(design.env, { DESIGNMD_API_KEY: apiKeyReference });
   }
 

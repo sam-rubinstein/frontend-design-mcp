@@ -60,14 +60,14 @@ For Cursor, Windsurf, Zed, or if you already have the skill some other way.
 **Claude Code**
 
 ```bash
-claude mcp add -s user design -- npx -y frontend-design-mcp
+claude mcp add -s user design -- npx -y github:sam-rubinstein/frontend-design-mcp#19efd6e
 claude mcp list   # `design` should show as connected
 ```
 
 **Codex**
 
 ```bash
-codex mcp add design -- npx -y frontend-design-mcp
+codex mcp add design -- npx -y github:sam-rubinstein/frontend-design-mcp#19efd6e
 codex mcp list
 ```
 
@@ -79,7 +79,7 @@ Restart Codex if it was already running.
 ```toml
 [mcp_servers.design]
 command = "npx"
-args = ["-y", "frontend-design-mcp"]
+args = ["-y", "github:sam-rubinstein/frontend-design-mcp#19efd6e"]
 ```
 
 </details>
@@ -87,7 +87,7 @@ args = ["-y", "frontend-design-mcp"]
 **Grok CLI**
 
 ```bash
-grok mcp add design -- npx -y frontend-design-mcp
+grok mcp add design -- npx -y github:sam-rubinstein/frontend-design-mcp#19efd6e
 grok mcp list
 ```
 
@@ -99,7 +99,7 @@ Tools show up namespaced, as `design__search_designs` and so on.
 ```toml
 [mcp_servers.design]
 command = "npx"
-args = ["-y", "frontend-design-mcp"]
+args = ["-y", "github:sam-rubinstein/frontend-design-mcp#19efd6e"]
 ```
 
 </details>
@@ -113,7 +113,7 @@ Add this to the client's MCP config file:
   "mcpServers": {
     "design": {
       "command": "npx",
-      "args": ["-y", "frontend-design-mcp"]
+      "args": ["-y", "github:sam-rubinstein/frontend-design-mcp#19efd6e"]
     }
   }
 }
@@ -127,13 +127,13 @@ Searching designmd.ai needs no key. Downloading its community kits needs a free 
 <https://designmd.ai/api-keys>:
 
 ```bash
-claude mcp add -s user design -e DESIGNMD_API_KEY=dk_your_key -- npx -y frontend-design-mcp
+claude mcp add -s user design -e DESIGNMD_API_KEY=dk_your_key -- npx -y github:sam-rubinstein/frontend-design-mcp#19efd6e
 ```
 
 Codex takes the same idea as a flag:
 
 ```bash
-codex mcp add design --env DESIGNMD_API_KEY=dk_your_key -- npx -y frontend-design-mcp
+codex mcp add design --env DESIGNMD_API_KEY=dk_your_key -- npx -y github:sam-rubinstein/frontend-design-mcp#19efd6e
 ```
 
 Grok's `mcp add` has no env flag, so put it in `~/.grok/config.toml`:
@@ -141,7 +141,7 @@ Grok's `mcp add` has no env flag, so put it in `~/.grok/config.toml`:
 ```toml
 [mcp_servers.design]
 command = "npx"
-args = ["-y", "frontend-design-mcp"]
+args = ["-y", "github:sam-rubinstein/frontend-design-mcp#19efd6e"]
 env = { DESIGNMD_API_KEY = "dk_your_key" }
 ```
 
