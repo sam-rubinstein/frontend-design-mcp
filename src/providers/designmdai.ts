@@ -9,6 +9,7 @@
  */
 import { HttpError, httpGet, httpGetJson } from "../http.js";
 import { detectVariant } from "../markdown.js";
+import { asString, asStringArray } from "../shape.js";
 import type {
   DesignDocument,
   DesignSummary,
@@ -20,16 +21,17 @@ import type {
 const API_BASE = "https://designmd.ai/api/v1";
 const SIGNUP_URL = "https://designmd.ai/api-keys";
 
+/** Shapes as they arrive on the wire: unvalidated, so every field is unknown until normalized. */
 interface KitHit {
-  slug?: string;
-  name?: string;
-  description?: string;
-  url?: string;
-  author?: { username?: string };
-  preview_colors?: string[];
-  tags?: string[];
-  license?: string;
-  download_count?: number;
+  slug?: unknown;
+  name?: unknown;
+  description?: unknown;
+  url?: unknown;
+  author?: { username?: unknown };
+  preview_colors?: unknown;
+  tags?: unknown;
+  license?: unknown;
+  download_count?: unknown;
 }
 
 export class DesignMdAiProvider implements Provider {
@@ -78,18 +80,21 @@ export class DesignMdAiProvider implements Provider {
       (hit): hit is KitHit => typeof hit === "object" && hit !== null,
     );
     return hits.flatMap((hit) => {
-      const username = hit.author?.username;
-      if (!hit.slug || !username) return [];
-      const slug = `${username}/${hit.slug}`;
+      // Every field is normalized at the boundary. The two required ones drop the row; the
+      // optional ones degrade to undefined rather than throwing wherever they are consumed.
+      const username = asString(hit.author?.username);
+      const kit = asString(hit.slug);
+      if (!kit || !username) return [];
+      const slug = `${username}/${kit}`;
       const summary: DesignSummary = {
         id: `${this.id}:${slug}`,
         provider: this.id,
         slug,
-        name: hit.name ?? hit.slug,
-        description: hit.description,
-        url: hit.url ?? `https://designmd.ai/${slug}`,
-        tags: Array.isArray(hit.tags) ? hit.tags : undefined,
-        previewColors: Array.isArray(hit.preview_colors) ? hit.preview_colors : undefined,
+        name: asString(hit.name) ?? kit,
+        description: asString(hit.description),
+        url: asString(hit.url) ?? `https://designmd.ai/${slug}`,
+        tags: asStringArray(hit.tags),
+        previewColors: asStringArray(hit.preview_colors),
         fetchable: this.hasKey,
         gatedReason: this.hasKey
           ? undefined

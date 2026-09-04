@@ -31,6 +31,7 @@ const run = spawnSync(
     "test/markdown.test.ts",
     "test/project.test.ts",
     "test/http.test.ts",
+    "test/shape.test.ts",
     "test/contract.test.ts",
   ],
   { stdio: "inherit", env: live ? { ...process.env, GETDESIGN_LIVE: "1" } : process.env },

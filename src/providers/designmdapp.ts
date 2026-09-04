@@ -6,6 +6,7 @@
  * field. So results carry fetchable:false and point the caller at the page.
  */
 import { httpGetJson } from "../http.js";
+import { asString } from "../shape.js";
 import type {
   DesignDocument,
   DesignSummary,
@@ -16,25 +17,27 @@ import type {
 
 const SEARCH_URL = "https://designmd.app/api/search";
 
+/** Shapes as they arrive on the wire: unvalidated, so every field is unknown until normalized. */
 interface AppHit {
-  id?: number;
-  slug?: string;
-  title?: string;
-  description?: string;
-  type?: string;
-  use_case?: string;
-  era?: string;
-  style_type?: string;
+  id?: unknown;
+  slug?: unknown;
+  title?: unknown;
+  description?: unknown;
+  type?: unknown;
+  use_case?: unknown;
+  era?: unknown;
+  style_type?: unknown;
   /** A JSON-encoded array delivered in a string field, not an array. */
-  keywords?: string;
+  keywords?: unknown;
 }
 
 /** keywords arrives JSON-encoded in a string; style_type is comma separated. Both become tags. */
 function tagsFrom(hit: AppHit): string[] {
   const tags: string[] = [];
-  if (hit.keywords) {
+  const keywords = asString(hit.keywords);
+  if (keywords) {
     try {
-      const parsed = JSON.parse(hit.keywords);
+      const parsed = JSON.parse(keywords);
       if (Array.isArray(parsed)) {
         tags.push(...parsed.filter((t): t is string => typeof t === "string"));
       }
@@ -42,9 +45,11 @@ function tagsFrom(hit: AppHit): string[] {
       // Malformed keywords are not worth failing a search over.
     }
   }
-  if (hit.style_type) {
+  // Guarded on type, not truthiness: a numeric style_type is truthy and then throws on .split.
+  const styleType = asString(hit.style_type);
+  if (styleType) {
     tags.push(
-      ...hit.style_type
+      ...styleType
         .split(",")
         .map((s) => s.trim())
         .filter(Boolean),
@@ -78,19 +83,25 @@ export class DesignMdAppProvider implements Provider {
     // Filter before slicing: truncating first would drop valid hits sitting past the cut
     // whenever the API returns entries without a slug.
     return hits
-      .filter((hit) => Boolean(hit.slug))
+      .filter((hit) => Boolean(asString(hit.slug)))
       .slice(0, opts.limit ?? 10)
       .flatMap((hit) => {
-        if (!hit.slug) return [];
+        const slug = asString(hit.slug);
+        if (!slug) return [];
+        const useCase = asString(hit.use_case);
         const summary: DesignSummary = {
-          id: `${this.id}:${hit.slug}`,
+          id: `${this.id}:${slug}`,
           provider: this.id,
-          slug: hit.slug,
-          name: hit.title ?? hit.slug,
-          description: [hit.description, hit.use_case && `Use case: ${hit.use_case}`, hit.era]
+          slug,
+          name: asString(hit.title) ?? slug,
+          description: [
+            asString(hit.description),
+            useCase && `Use case: ${useCase}`,
+            asString(hit.era),
+          ]
             .filter(Boolean)
             .join(" - "),
-          url: `https://designmd.app/library/${hit.slug}`,
+          url: `https://designmd.app/library/${slug}`,
           tags: tagsFrom(hit),
           fetchable: false,
           gatedReason:
