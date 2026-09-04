@@ -106,7 +106,7 @@ reviews:
         an upstream shape change. Do not suggest mocking them; that would delete the signal.
         They are opt-in via `GETDESIGN_LIVE=1`.
 
-    - path: "skill/SKILL.md"
+    - path: "skills/design-md/SKILL.md"
       instructions: |
         This is agent-facing calibration, not marketing copy. Numbers in it (token costs, file
         counts) must match what `npm run audit` and the catalog actually report. A stale number

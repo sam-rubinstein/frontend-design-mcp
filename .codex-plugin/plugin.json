@@ -1,0 +1,20 @@
+{
+  "name": "frontend-design",
+  "version": "0.1.0",
+  "description": "Gives your agent a real design system to follow. Searches getdesign.md, designmd.app and designmd.ai for DESIGN.md files and returns only the slice you asked for.",
+  "author": { "name": "Sam Rubinstein" },
+  "homepage": "https://github.com/sam-rubinstein/frontend-design-mcp",
+  "repository": "https://github.com/sam-rubinstein/frontend-design-mcp",
+  "license": "BSD-3-Clause",
+  "keywords": ["design", "design-system", "design-tokens", "frontend", "ui", "css"],
+  "skills": "./skills/",
+  "mcpServers": "./.mcp.json",
+  "interface": {
+    "displayName": "Frontend Design",
+    "shortDescription": "DESIGN.md design systems for frontend work",
+    "longDescription": "Searches getdesign.md, designmd.app and designmd.ai for DESIGN.md files and returns only the slice your agent asked for. Bundles the MCP server and the skill that tells the agent when to use it.",
+    "developerName": "Sam Rubinstein",
+    "category": "Developer Tools",
+    "websiteURL": "https://github.com/sam-rubinstein/frontend-design-mcp"
+  }
+}

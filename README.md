@@ -22,38 +22,56 @@ Needs [Node](https://nodejs.org) 18 or newer. Searching all three catalogs and d
 76 getdesign.md brands needs no account and no key. Only [designmd.ai
 downloads](#optional-designmdai-downloads) need a free key.
 
-### Claude Code
+### Plugin (recommended)
 
-1. Add the server:
+Installs the MCP server and the companion skill together. The skill is what tells the agent *when*
+to reach for the tools — at the start of frontend work, when picking it back up after a break, and
+when fixing a visual bug — and which call is cheapest.
 
-   ```bash
-   claude mcp add -s user design -- npx -y frontend-design-mcp
-   ```
+**Claude Code**
 
-2. Check it connected:
+```text
+/plugin marketplace add sam-rubinstein/frontend-design-mcp
+/plugin install frontend-design@frontend-design-mcp
+```
 
-   ```bash
-   claude mcp list
-   ```
+**Grok**
 
-   `design` should be listed as connected.
-3. Try it: *"use design to show me Stripe's colors"*.
+```text
+grok plugin marketplace add sam-rubinstein/frontend-design-mcp
+grok plugin install frontend-design@frontend-design-mcp
+```
 
-### Codex
+Inside the TUI, open `/plugins` after adding the marketplace and install `frontend-design`.
 
-1. Add the server:
+**Codex**
 
-   ```bash
-   codex mcp add design -- npx -y frontend-design-mcp
-   ```
+```bash
+codex plugin marketplace add sam-rubinstein/frontend-design-mcp
+codex plugin add frontend-design@frontend-design-mcp
+```
 
-2. Check it:
+Or open `/plugins` and install `frontend-design`. Start a new session afterwards.
 
-   ```bash
-   codex mcp list
-   ```
+### MCP server only
 
-3. Restart Codex if it was already running.
+For Cursor, Windsurf, Zed, or if you already have the skill some other way.
+
+**Claude Code**
+
+```bash
+claude mcp add -s user design -- npx -y frontend-design-mcp
+claude mcp list   # `design` should show as connected
+```
+
+**Codex**
+
+```bash
+codex mcp add design -- npx -y frontend-design-mcp
+codex mcp list
+```
+
+Restart Codex if it was already running.
 
 <details>
 <summary>Or edit <code>~/.codex/config.toml</code> by hand</summary>
@@ -66,21 +84,14 @@ args = ["-y", "frontend-design-mcp"]
 
 </details>
 
-### Grok CLI
+**Grok CLI**
 
-1. Add the server:
+```bash
+grok mcp add design -- npx -y frontend-design-mcp
+grok mcp list
+```
 
-   ```bash
-   grok mcp add design -- npx -y frontend-design-mcp
-   ```
-
-2. Check it:
-
-   ```bash
-   grok mcp list
-   ```
-
-3. Tools show up namespaced, as `design__search_designs` and so on.
+Tools show up namespaced, as `design__search_designs` and so on.
 
 <details>
 <summary>Or edit <code>~/.grok/config.toml</code> by hand</summary>
@@ -93,7 +104,7 @@ args = ["-y", "frontend-design-mcp"]
 
 </details>
 
-### Cursor, Windsurf, Zed, anything else
+**Cursor, Windsurf, Zed, anything else**
 
 Add this to the client's MCP config file:
 
@@ -109,15 +120,6 @@ Add this to the client's MCP config file:
 ```
 
 This server speaks **stdio**, which every MCP client supports locally.
-
-## Recommended: add the skill too
-
-The server supplies the data. The companion skill teaches your agent *when* to reach for it — at
-the start of frontend work, when picking it back up after a break, and when fixing a visual bug —
-and which call is cheapest.
-
-Copy [`skill/SKILL.md`](skill/SKILL.md) to `.claude/skills/design-md/SKILL.md` in your project, or
-to `~/.claude/skills/design-md/SKILL.md` to turn it on everywhere.
 
 ## Optional: designmd.ai downloads
 
