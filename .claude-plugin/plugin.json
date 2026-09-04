@@ -7,5 +7,6 @@
   "repository": "https://github.com/sam-rubinstein/frontend-design-mcp",
   "license": "BSD-3-Clause",
   "keywords": ["design", "design-system", "design-tokens", "frontend", "ui", "css"],
+  "skills": "./skills/",
   "mcpServers": "./.mcp.json"
 }

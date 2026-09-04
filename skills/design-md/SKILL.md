@@ -45,12 +45,12 @@ A DESIGN.md averages 28KB — about 8,000 tokens. Reading one whole is almost ne
 
 | You need | Call | ~tokens |
 |---|---|---|
-| One group of values (colours, spacing) | `get_design_tokens` with `only` | **~140** |
+| One group of values (colours, spacing) | `get_design_tokens` with `only` | **~137** |
 | What tokens exist at all | `get_design_tokens` | **~390** |
-| What sections exist | `get_design_sections` | **~150** |
-| Rules for one area (buttons, layout) | `get_design` with `section` | **~620** |
+| What sections exist | `get_design_sections` | **~151** |
+| Rules for one area (buttons, layout) | `get_design` with `section` | **~624** |
 | The design system, permanently | `install_design`, then read from disk | one-time |
-| The whole document inline | `get_design` with no `section` | **~6,200 — justify it** |
+| The whole document inline | `get_design` with no `section` | **~6,152 — justify it** |
 
 `get_design_tokens` with `only` is the default. Reach for prose only when a value is not enough
 and you actually need the reasoning.
