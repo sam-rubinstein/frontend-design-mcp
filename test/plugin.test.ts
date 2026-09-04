@@ -9,7 +9,12 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { test } from "node:test";
+
 import { Registry } from "../dist/providers/index.js";
+
+// Every agent resolves the plugin from this directory rather than the repo root: Grok will not
+// load a plugin whose marketplace source is the root itself, and the other two do not care.
+const PLUGIN = "plugins/frontend-design";
 
 type JsonObject = Record<string, unknown>;
 
@@ -23,9 +28,9 @@ async function readJson(path: string): Promise<JsonObject> {
 
 test("every agent's plugin manifest exposes the shared skill and MCP server", async () => {
   const manifests = {
-    claude: await readJson(".claude-plugin/plugin.json"),
-    codex: await readJson(".codex-plugin/plugin.json"),
-    grok: await readJson(".grok-plugin/plugin.json"),
+    claude: await readJson(`${PLUGIN}/.claude-plugin/plugin.json`),
+    codex: await readJson(`${PLUGIN}/.codex-plugin/plugin.json`),
+    grok: await readJson(`${PLUGIN}/.grok-plugin/plugin.json`),
   };
 
   for (const [agent, manifest] of Object.entries(manifests)) {
@@ -34,7 +39,7 @@ test("every agent's plugin manifest exposes the shared skill and MCP server", as
     assert.equal(manifest.mcpServers, "./.mcp.json", `${agent} mcpServers path`);
   }
 
-  const skill = await readFile(resolve("skills/design-md/SKILL.md"), "utf8");
+  const skill = await readFile(resolve(`${PLUGIN}/skills/design-md/SKILL.md`), "utf8");
   assert.match(skill, /^name: design-md$/m);
   assert.match(skill, /get_project_design/);
 });
@@ -44,7 +49,7 @@ test("the MCP server is installed from npm, on the minor line this repo publishe
   const [major, minor] = String(pkg.version).split(".");
   const expectedSpec = `frontend-design-mcp@^${major}.${minor}.0`;
 
-  const mcp = await readJson(".mcp.json");
+  const mcp = await readJson(`${PLUGIN}/.mcp.json`);
   const design = (mcp.mcpServers as JsonObject).design as JsonObject;
 
   assert.equal(design.command, "npx");
@@ -75,7 +80,7 @@ test("each marketplace catalog lists the plugin in its own host's schema", async
   const claudeEntry = (claude.plugins as JsonObject[])[0];
   assert.equal((claude.plugins as JsonObject[]).length, 1);
   assert.equal(claudeEntry?.name, "frontend-design");
-  assert.equal(claudeEntry?.source, "./");
+  assert.equal(claudeEntry?.source, `./${PLUGIN}`);
   assert.equal(claudeEntry?.version, pkgVersion);
 
   // Codex: <repo>/.agents/plugins/marketplace.json, structured source plus an install policy.
@@ -83,14 +88,14 @@ test("each marketplace catalog lists the plugin in its own host's schema", async
   const codexEntry = (codex.plugins as JsonObject[])[0];
   assert.equal((codex.plugins as JsonObject[]).length, 1);
   assert.equal(codexEntry?.name, "frontend-design");
-  assert.deepEqual(codexEntry?.source, { source: "local", path: "./" });
+  assert.deepEqual(codexEntry?.source, { source: "local", path: `./${PLUGIN}` });
   const policy = codexEntry?.policy as JsonObject;
   assert.ok(
     ["AVAILABLE", "INSTALLED_BY_DEFAULT", "NOT_AVAILABLE"].includes(String(policy?.installation)),
     `installation policy "${policy?.installation}" is not one Codex accepts`,
   );
   assert.ok(
-    ["ON_INSTALL", "ON_FIRST_USE"].includes(String(policy?.authentication)),
+    ["ON_INSTALL", "ON_USE"].includes(String(policy?.authentication)),
     `authentication policy "${policy?.authentication}" is not one Codex accepts`,
   );
 
@@ -100,16 +105,16 @@ test("each marketplace catalog lists the plugin in its own host's schema", async
   assert.equal((grok.plugins as JsonObject[]).length, 1);
   assert.ok((grok.owner as JsonObject)?.name, "Grok's catalog requires an owner");
   assert.equal(grokEntry?.name, "frontend-design");
-  assert.deepEqual(grokEntry?.source, { type: "local", path: "./" });
+  assert.deepEqual(grokEntry?.source, { type: "local", path: `./${PLUGIN}` });
   assert.equal(grokEntry?.version, pkgVersion);
 });
 
 test("the plugin version tracks the package version everywhere it is written down", async () => {
   const pkgVersion = (await readJson("package.json")).version;
   for (const path of [
-    ".claude-plugin/plugin.json",
-    ".codex-plugin/plugin.json",
-    ".grok-plugin/plugin.json",
+    `${PLUGIN}/.claude-plugin/plugin.json`,
+    `${PLUGIN}/.codex-plugin/plugin.json`,
+    `${PLUGIN}/.grok-plugin/plugin.json`,
   ]) {
     assert.equal((await readJson(path)).version, pkgVersion, `${path} is out of step`);
   }

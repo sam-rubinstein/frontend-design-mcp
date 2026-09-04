@@ -42,10 +42,10 @@ grok plugin marketplace add sam-rubinstein/frontend-design-mcp
 ```
 
 Then open `/marketplace` in the TUI and press `i` on `frontend-design`. Or skip the catalog and
-install the repo directly:
+install the plugin directory directly:
 
 ```bash
-grok plugin install sam-rubinstein/frontend-design-mcp --trust
+grok plugin install sam-rubinstein/frontend-design-mcp#plugins/frontend-design --trust
 ```
 
 **Codex**
