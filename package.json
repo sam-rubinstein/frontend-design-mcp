@@ -1,0 +1,57 @@
+{
+  "name": "frontend-design-mcp",
+  "version": "0.1.0",
+  "description": "MCP server that gives coding agents a real design system (DESIGN.md) for frontend work - searches getdesign.md, designmd.app and designmd.ai, and returns only the slice you asked for.",
+  "license": "BSD-3-Clause",
+  "type": "module",
+  "bin": {
+    "frontend-design-mcp": "dist/index.js"
+  },
+  "main": "dist/index.js",
+  "files": [
+    "dist",
+    "skill",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "node scripts/run-tests.mjs",
+    "dev": "tsc --watch",
+    "test:live": "node scripts/run-tests.mjs --live",
+    "smoke": "npm run build && node scripts/smoke.mjs",
+    "audit": "npm run build && node scripts/token-audit.mjs",
+    "lint": "biome check .",
+    "lint:fix": "biome check --write ."
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "design-md",
+    "design-system",
+    "design-tokens",
+    "frontend",
+    "getdesign",
+    "designmd"
+  ],
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.30.0",
+    "yaml": "^2.9.0",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.5.12",
+    "@types/node": "^26.4.1",
+    "typescript": "^7.0.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sam-rubinstein/frontend-design-mcp.git"
+  },
+  "bugs": {
+    "url": "https://github.com/sam-rubinstein/frontend-design-mcp/issues"
+  },
+  "homepage": "https://github.com/sam-rubinstein/frontend-design-mcp#readme"
+}

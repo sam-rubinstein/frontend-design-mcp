@@ -1,0 +1,130 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+language: en-US
+early_access: false
+
+reviews:
+  profile: assertive
+  request_changes_workflow: false
+  high_level_summary: true
+  poem: false
+  review_status: true
+  collapse_walkthrough: false
+  sequence_diagrams: false
+
+  auto_review:
+    enabled: true
+    drafts: false
+    base_branches:
+      - main
+
+  path_filters:
+    - "!dist/**"
+    - "!node_modules/**"
+    - "!package-lock.json"
+    # Real DESIGN.md documents pulled from getdesign.md. They are third-party test data, not
+    # code, and one is ~37KB of prose.
+    - "!test/fixtures/**"
+
+  path_instructions:
+    - path: "src/http.ts"
+      instructions: |
+        This module deliberately uses `node:https` instead of global `fetch`. designmd.ai sits
+        behind Cloudflare rules that 403 undici while allowing node:https under the same declared
+        User-Agent. Do not suggest "modernising" this to fetch — it is a documented workaround,
+        not an oversight.
+
+        Do flag: any redirect path that forwards `authorization`, `cookie` or
+        `proxy-authorization` to a different origin (a past bug); missing timeout or redirect
+        bounds; any change that makes the User-Agent impersonate a browser rather than identify
+        this client honestly.
+
+    - path: "src/cache.ts"
+      instructions: |
+        Disk cache with ETag revalidation. Two past bugs to guard against:
+        1. The stale-cache fallback must NOT swallow 4xx. A 404/401/403 is the origin saying
+           something definite; serving cached content over it hides a removed or newly-gated
+           design forever. Only transport and 5xx faults may fall back to stale.
+        2. `force: true` must skip BOTH the age shortcut and `If-None-Match`. Sending the ETag
+           lets the server reply 304 and hand back the very entry the caller is bypassing.
+
+    - path: "src/providers/**"
+      instructions: |
+        None of the three upstream sites publishes an API contract; endpoint and parameter names
+        were reverse-engineered. Treat every response shape as untrusted and parse defensively.
+
+        Specifically flag:
+        - Any in-memory memo without a TTL. The registry lives for the whole server process
+          (days), so a latched cache silently freezes the catalog. Both `indexCache` and
+          `corpusCache` had this bug.
+        - Wire parameter names changed without evidence. designmd.ai's search parameter is `q`;
+          sending `query` is silently ignored and returns trending filler for every search.
+        - Ranking that uses a score penalty to mean "always rank below". Penalties only break
+          ties; use a partition. Slicing happens inside each provider, so a mis-ranked entry is
+          discarded before the registry ever sees it.
+        - Integrity claims stronger than the evidence. `verified` may only be true when a
+          published digest actually matched, never merely because a hash was computed.
+
+    - path: "src/markdown.ts"
+      instructions: |
+        Parses two real-world DESIGN.md shapes: YAML frontmatter (68 of 76 catalog files) and
+        prose-only (8). Six frontmatter files contain an unquoted ": " inside `description`,
+        which strict YAML rejects; the loose-scalar retry exists for them.
+
+        Flag: any change making section detection depend on balanced code fences without a
+        fallback (an unclosed fence used to swallow every later section); any path that reports
+        `partial: false` when no usable tokens were recovered.
+
+    - path: "src/project.ts"
+      instructions: |
+        Writes files into the user's project. The path guard must compare path SEGMENTS, not
+        string prefixes — `startsWith("..")` also rejects a valid `..hidden.md`. Any new write
+        target must stay inside the resolved project root.
+
+        The provenance marker regex must keep accepting the legacy `getdesign-mcp:` prefix
+        alongside `frontend-design-mcp:`; dropping it orphans files installed before the rename.
+
+    - path: "src/server.ts"
+      instructions: |
+        Tool surface. Token economy is the product here — a DESIGN.md averages ~8k tokens and the
+        whole point is returning slices.
+
+        Flag any change that: enlarges a default response (`typography` and `components` are
+        summarized on purpose — together they were 89% of a full token dump); reinstates
+        pretty-printed JSON (indentation was ~40% of every payload); repeats an identical string
+        on every result row rather than hoisting it; or states a token cost in a tool description
+        that is not backed by `npm run audit`.
+
+        Every handler must catch its own errors and return a useful message.
+        `get_project_design` especially — agents are instructed to call it first.
+
+    - path: "test/**"
+      instructions: |
+        Watch for vacuous assertions. `array.every(...)` is true for an empty array, so any
+        `every` check needs a non-empty guard first — a real bug hid behind exactly that.
+
+        Live tests in `contract.test.ts` hit the real catalogs and are the only defence against
+        an upstream shape change. Do not suggest mocking them; that would delete the signal.
+        They are opt-in via `GETDESIGN_LIVE=1`.
+
+    - path: "skill/SKILL.md"
+      instructions: |
+        This is agent-facing calibration, not marketing copy. Numbers in it (token costs, file
+        counts) must match what `npm run audit` and the catalog actually report. A stale number
+        here mis-steers every agent that reads it.
+
+  tools:
+    biome:
+      enabled: true
+    actionlint:
+      enabled: true
+    markdownlint:
+      enabled: true
+    gitleaks:
+      enabled: true
+
+chat:
+  auto_reply: true
+
+knowledge_base:
+  learnings:
+    scope: local
