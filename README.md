@@ -18,7 +18,9 @@ Nike, Tesla, Spotify and more — plus hundreds more searchable across the other
 
 ## Setup
 
-Needs [Node](https://nodejs.org) 18 or newer. No account, no API key, nothing to sign up for.
+Needs [Node](https://nodejs.org) 18 or newer. Searching all three catalogs and downloading the
+76 getdesign.md brands needs no account and no key. Only [designmd.ai
+downloads](#optional-designmdai-downloads) need a free key.
 
 ### Claude Code
 

@@ -1,6 +1,6 @@
 ---
 name: design-md
-description: Use at the START of any frontend or web-UI work, when RESUMING it after a break, and when FIXING a visual or styling bug - before writing or editing any page, component, screen, stylesheet, theme, or layout. Establishes the project's design contract (DESIGN.md) so generated UI is consistent instead of default-AI-generic, and pulls brand design systems (Stripe, Linear, Notion, Apple, and ~76 more) from getdesign.md, designmd.app and designmd.ai. Triggers on - build a page, build a UI, style this, restyle, redesign, make it look like X, design system, design tokens, brand colors, theme, CSS, Tailwind config, component library, landing page, dashboard, "the spacing looks wrong", "these colors are off".
+description: Use at the START of any frontend or web-UI work, when RESUMING it after a break, and when FIXING a visual or styling bug - before writing or editing any page, component, screen, stylesheet, theme, or layout. Establishes the project's design contract (DESIGN.md) so generated UI is consistent instead of default-AI-generic, and pulls brand design systems (76 downloadable brand systems including Stripe, Linear, Notion and Apple, plus hundreds more searchable) from getdesign.md, designmd.app and designmd.ai. Triggers on - build a page, build a UI, style this, restyle, redesign, make it look like X, design system, design tokens, brand colors, theme, CSS, Tailwind config, component library, landing page, dashboard, "the spacing looks wrong", "these colors are off".
 ---
 
 # Design contract for frontend work

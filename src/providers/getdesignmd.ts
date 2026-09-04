@@ -78,10 +78,18 @@ export class GetDesignMdProvider implements Provider {
     const parsed = JSON.parse(raw) as SkillIndex;
     const map = new Map<string, SkillEntry>();
     const skills = Array.isArray(parsed?.skills) ? parsed.skills : [];
-    for (const entry of skills) {
-      // Skip malformed entries rather than letting one bad row poison the whole catalog.
-      if (typeof entry?.name !== "string" || typeof entry?.url !== "string") continue;
-      map.set(slugFromName(entry.name), entry);
+    for (const raw of skills) {
+      // Skip malformed entries rather than letting one bad row poison the whole catalog, and
+      // normalize the optional fields: a non-string sha256 would throw inside digestFromEntry,
+      // and a non-string description would throw when the search result is trimmed.
+      if (typeof raw?.name !== "string" || typeof raw?.url !== "string") continue;
+      map.set(slugFromName(raw.name), {
+        name: raw.name,
+        url: raw.url,
+        type: typeof raw.type === "string" ? raw.type : "design-system",
+        description: typeof raw.description === "string" ? raw.description : "",
+        sha256: typeof raw.sha256 === "string" ? raw.sha256 : undefined,
+      });
     }
     this.indexCache = { map, at: Date.now() };
     return map;

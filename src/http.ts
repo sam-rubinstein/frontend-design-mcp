@@ -84,6 +84,19 @@ async function readBody(stream: Readable, url: string): Promise<string> {
   return Buffer.concat(chunks).toString("utf8");
 }
 
+/**
+ * Caller headers minus any user-agent, whatever its casing.
+ *
+ * The User-Agent is this client identifying itself to sites that gate on client identity; it is
+ * not a knob for callers. Other headers stay overridable - httpGetJson legitimately sets accept.
+ */
+export function callerHeaders(headers: Record<string, string> | undefined): Record<string, string> {
+  if (!headers) return {};
+  return Object.fromEntries(
+    Object.entries(headers).filter(([name]) => name.toLowerCase() !== "user-agent"),
+  );
+}
+
 function once(url: string, opts: FetchOptions): Promise<{ res: IncomingMessage; body: string }> {
   const timeoutMs = opts.timeoutMs ?? DEFAULT_TIMEOUT_MS;
 
@@ -93,10 +106,10 @@ function once(url: string, opts: FetchOptions): Promise<{ res: IncomingMessage; 
       {
         method: "GET",
         headers: {
-          "user-agent": USER_AGENT,
           accept: "*/*",
           "accept-encoding": "gzip, deflate, br",
-          ...opts.headers,
+          ...callerHeaders(opts.headers),
+          "user-agent": USER_AGENT,
         },
       },
       (res) => {

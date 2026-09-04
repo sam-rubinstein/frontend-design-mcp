@@ -74,7 +74,9 @@ export class DesignMdAiProvider implements Provider {
       headers: this.authHeaders(),
     });
 
-    const hits = Array.isArray(res.data) ? res.data : [];
+    const hits = (Array.isArray(res.data) ? res.data : []).filter(
+      (hit): hit is KitHit => typeof hit === "object" && hit !== null,
+    );
     return hits.flatMap((hit) => {
       const username = hit.author?.username;
       if (!hit.slug || !username) return [];
@@ -129,8 +131,13 @@ export class DesignMdAiProvider implements Provider {
       const body = res.body.trim();
       // The endpoint may hand back raw markdown or a JSON envelope; accept either.
       if (body.startsWith("{")) {
-        const parsed = JSON.parse(body) as { content?: string; data?: { content?: string } };
-        content = parsed.content ?? parsed.data?.content ?? "";
+        const parsed: unknown = JSON.parse(body);
+        const envelope =
+          typeof parsed === "object" && parsed !== null
+            ? (parsed as { content?: unknown; data?: { content?: unknown } })
+            : {};
+        const candidate = envelope.content ?? envelope.data?.content;
+        content = typeof candidate === "string" ? candidate : "";
       } else {
         content = res.body;
       }

@@ -33,6 +33,10 @@ describe("getdesign.md contract", () => {
     assert.equal(doc.variant, "frontmatter");
     const actual = createHash("sha256").update(doc.content, "utf8").digest("hex");
     assert.equal(doc.sha256, actual);
+    // sha256 is set whether or not anything was checked, so assert the flag that actually
+    // means "a published digest matched" - otherwise a catalog that dropped its digests
+    // would silently stop being verified while this test kept passing.
+    assert.equal(doc.verified, true, "the catalog should still publish a matching digest");
   });
 
   test("frontmatter tokens still parse to named roles", opts, async () => {
