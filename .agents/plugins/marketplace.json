@@ -1,0 +1,20 @@
+{
+  "name": "frontend-design-mcp",
+  "interface": {
+    "displayName": "Frontend Design"
+  },
+  "plugins": [
+    {
+      "name": "frontend-design",
+      "source": {
+        "source": "local",
+        "path": "./"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_USE"
+      },
+      "category": "Developer Tools"
+    }
+  ]
+}

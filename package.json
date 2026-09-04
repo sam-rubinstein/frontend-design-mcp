@@ -10,7 +10,11 @@
   "main": "dist/index.js",
   "files": [
     "dist",
-    "skill",
+    "skills",
+    ".agents",
+    ".claude-plugin",
+    ".codex-plugin",
+    ".mcp.json",
     "README.md"
   ],
   "engines": {

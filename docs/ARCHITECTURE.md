@@ -137,7 +137,7 @@ freezes the catalog.
 - `test/contract.test.ts` — live, opt-in via `GETDESIGN_LIVE=1`, the upstream tripwire.
 - `scripts/smoke.mjs` — spawns the built server over stdio and drives it as a real MCP client.
 - `scripts/token-audit.mjs` — the numbers at the top of this file. Any token claim in a tool
-  description or in `skill/SKILL.md` should be backed by this, not estimated.
+  description or in `skills/design-md/SKILL.md` should be backed by this, not estimated.
 
 Watch for vacuous assertions: `array.every(...)` is true for an empty array, and a real bug hid
 behind exactly that.

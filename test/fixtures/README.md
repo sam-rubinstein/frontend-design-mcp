@@ -14,7 +14,7 @@ specific real-world shape the parser has to survive:
 
 The content is VoltAgent's, not this project's, and is included as unmodified reference material
 for testing. It is not redistributed as part of the published npm package — `package.json`
-`files` ships only `dist`, `skill` and the docs. getdesign.md's `robots.txt` declares
+`files` ships only `dist`, `skills` and the docs. getdesign.md's `robots.txt` declares
 `Content-Signal: search=yes, ai-train=no, use=reference`; this is reference use, and nothing here
 is used to train anything.
 
