@@ -2,13 +2,27 @@ name: Release
 
 # Publishes to npm with trusted publishing (OIDC). There is no NPM_TOKEN here and there must
 # never be one: npm mints a short-lived credential from GitHub's OIDC token, scoped to this
-# workflow in this repository. A long-lived publish token in a secret is what this replaces,
-# and npm retires bypass-2FA token publishing in January 2027 regardless.
+# workflow, in this repository, running in the `npm-publish` environment. A long-lived publish
+# token in a secret is what this replaces, and npm retires bypass-2FA token publishing in
+# January 2027 regardless.
 #
-# One-time setup on npmjs.com, without which every run fails at the publish step:
-#   Package settings -> Trusted Publisher -> GitHub Actions
-#     Repository: sam-rubinstein/frontend-design-mcp
-#     Workflow:   release.yml
+# Setup, in this order. Getting it wrong fails the run with an opaque OIDC or environment error.
+#
+#   1. GitHub -> Settings -> Environments -> New environment -> `npm-publish`
+#      In it: Deployment branches and tags -> Selected -> add rule, type Tag, pattern `v*`.
+#      Without that rule the environment gates nothing: a workflow_dispatch from any branch
+#      could still publish. Tag rules match tags only, and have worked since October 2023 -
+#      older threads saying tag-triggered deploys cannot use environments are out of date.
+#
+#   2. npmjs.com -> package Settings -> Trusted Publisher -> GitHub Actions
+#        Organization or user: sam-rubinstein
+#        Repository:           frontend-design-mcp
+#        Workflow filename:    release.yml
+#        Environment name:     npm-publish        (must match step 1 exactly)
+#        Allowed actions:      tick `npm publish` as well as `npm stage publish`
+#
+#      That last field matters. Trusted publishers created after 3 September 2026 default to
+#      stage-only, and the `npm publish` below is rejected unless direct publishing is allowed.
 #
 # To cut a release: bump `version` in package.json and the three plugin manifests together
 # (test/plugin.test.ts fails if they drift), commit, then push a matching tag:
@@ -33,6 +47,9 @@ jobs:
   release:
     name: Publish to npm
     runs-on: ubuntu-latest
+    # Gated by the environment's tag rule, and named in npm's trusted-publisher config so
+    # the OIDC claim only matches runs that passed that gate.
+    environment: npm-publish
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
