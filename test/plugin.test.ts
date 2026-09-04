@@ -4,6 +4,7 @@ import { resolve } from "node:path";
 import { test } from "node:test";
 
 type JsonObject = Record<string, unknown>;
+const apiKeyReference = ["$", "{DESIGNMD_API_KEY}"].join("");
 
 async function readJson(path: string): Promise<JsonObject> {
   return JSON.parse(await readFile(path, "utf8")) as JsonObject;
@@ -37,6 +38,7 @@ test("Claude, Grok, and Codex plugin metadata exposes the shared skill and MCP s
     const design = servers.design as JsonObject;
     assert.equal(design.command, "npx");
     assert.deepEqual(design.args, ["-y", "frontend-design-mcp@0.1.0"]);
+    assert.deepEqual(design.env, { DESIGNMD_API_KEY: apiKeyReference });
   }
 
   const claudePlugins = claudeMarketplace.plugins as JsonObject[];
