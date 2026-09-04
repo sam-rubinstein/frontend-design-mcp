@@ -7,7 +7,7 @@ It searches three public catalogs of `DESIGN.md` files — [getdesign.md](https:
 [designmd.app](https://designmd.app) and [designmd.ai](https://designmd.ai) — and hands back
 **only the part your agent asked for**, not the whole 28KB document.
 
-```
+```text
 You:   Restyle my landing page to match Airbnb.
 Agent: [reads Airbnb's tokens - 137 tokens of context, not 6,152]
        primary #ff385c · canvas #ffffff · ink #222222 · hairline #dddddd
@@ -23,26 +23,34 @@ Needs [Node](https://nodejs.org) 18 or newer. No account, no API key, nothing to
 ### Claude Code
 
 1. Add the server:
+
    ```bash
    claude mcp add -s user design -- npx -y frontend-design-mcp
    ```
+
 2. Check it connected:
+
    ```bash
    claude mcp list
    ```
+
    `design` should be listed as connected.
 3. Try it: *"use design to show me Stripe's colors"*.
 
 ### Codex
 
 1. Add the server:
+
    ```bash
    codex mcp add design -- npx -y frontend-design-mcp
    ```
+
 2. Check it:
+
    ```bash
    codex mcp list
    ```
+
 3. Restart Codex if it was already running.
 
 <details>
@@ -53,18 +61,23 @@ Needs [Node](https://nodejs.org) 18 or newer. No account, no API key, nothing to
 command = "npx"
 args = ["-y", "frontend-design-mcp"]
 ```
+
 </details>
 
 ### Grok CLI
 
 1. Add the server:
+
    ```bash
    grok mcp add design -- npx -y frontend-design-mcp
    ```
+
 2. Check it:
+
    ```bash
    grok mcp list
    ```
+
 3. Tools show up namespaced, as `design__search_designs` and so on.
 
 <details>
@@ -75,6 +88,7 @@ args = ["-y", "frontend-design-mcp"]
 command = "npx"
 args = ["-y", "frontend-design-mcp"]
 ```
+
 </details>
 
 ### Cursor, Windsurf, Zed, anything else
@@ -154,7 +168,7 @@ npm run audit      # measures what each tool costs in tokens
 ```
 
 The published package runs on Node 18. The test suite executes TypeScript directly and needs Node
-22.6+; the runner will tell you if your version is too old.
+22.18+; the runner will tell you if your version is too old.
 
 How it works and why: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 

@@ -57,9 +57,30 @@ function decompress(res: IncomingMessage): Readable {
   }
 }
 
-async function readBody(stream: Readable): Promise<string> {
+/**
+ * Largest response we will hold in memory. The biggest real DESIGN.md is ~43KB and the largest
+ * catalog document is the sitemap at ~104KB, so this is generous by two orders of magnitude.
+ * It exists because we accept gzip and brotli: a small compressed payload can expand without
+ * bound, and nothing upstream is under our control.
+ */
+const MAX_BODY_BYTES = 16 * 1024 * 1024;
+
+async function readBody(stream: Readable, url: string): Promise<string> {
   const chunks: Buffer[] = [];
-  for await (const chunk of stream) chunks.push(Buffer.from(chunk));
+  let total = 0;
+  for await (const chunk of stream) {
+    const buf = Buffer.from(chunk);
+    total += buf.length;
+    if (total > MAX_BODY_BYTES) {
+      stream.destroy();
+      throw new HttpError(
+        `GET ${url} returned more than ${MAX_BODY_BYTES} bytes after decompression; refusing to buffer it`,
+        0,
+        url,
+      );
+    }
+    chunks.push(buf);
+  }
   return Buffer.concat(chunks).toString("utf8");
 }
 
@@ -92,10 +113,14 @@ function once(url: string, opts: FetchOptions): Promise<{ res: IncomingMessage; 
           resolve({ res, body: "" });
           return;
         }
-        readBody(decompress(res)).then(
+        readBody(decompress(res), url).then(
           (body) => resolve({ res, body }),
           (err: Error) =>
-            reject(new HttpError(`GET ${url} failed while reading: ${err.message}`, status, url)),
+            reject(
+              err instanceof HttpError
+                ? err
+                : new HttpError(`GET ${url} failed while reading: ${err.message}`, status, url),
+            ),
         );
       },
     );

@@ -71,7 +71,7 @@ export class DesignMdAppProvider implements Provider {
   async search(opts: SearchOptions): Promise<DesignSummary[]> {
     const url = `${SEARCH_URL}?q=${encodeURIComponent(opts.query)}`;
     const res = await httpGetJson<{ data?: AppHit[] }>(url);
-    const hits = res.data ?? [];
+    const hits = Array.isArray(res.data) ? res.data : [];
 
     // Filter before slicing: truncating first would drop valid hits sitting past the cut
     // whenever the API returns entries without a slug.

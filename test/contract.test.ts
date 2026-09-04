@@ -157,9 +157,11 @@ describe("registry", () => {
     const outcome = await new Registry({}).search({ query: "stripe", limit: 5 });
     const firstGated = outcome.results.findIndex((r) => !r.fetchable);
     const lastFetchable = outcome.results.map((r) => r.fetchable).lastIndexOf(true);
-    if (firstGated !== -1 && lastFetchable !== -1) {
-      assert.ok(lastFetchable < firstGated, "fetchable results must sort first");
-    }
+    // Assert the preconditions rather than skipping: a query returning no gated or no fetchable
+    // results would let this test pass without ever checking the ordering.
+    assert.notEqual(firstGated, -1, "expected at least one gated result to order against");
+    assert.notEqual(lastFetchable, -1, "expected at least one fetchable result to order against");
+    assert.ok(lastFetchable < firstGated, "fetchable results must sort first");
   });
 
   test("results are tiered getdesign > designmd.ai > designmd.app", opts, async () => {
@@ -181,9 +183,9 @@ describe("registry", () => {
     const outcome = await new Registry({}).search({ query: "notion", limit: 6 });
     const lastFetchable = outcome.results.map((r) => r.fetchable).lastIndexOf(true);
     const firstGated = outcome.results.findIndex((r) => !r.fetchable);
-    if (lastFetchable !== -1 && firstGated !== -1) {
-      assert.ok(lastFetchable < firstGated, "a deliverable result must outrank a gated one");
-    }
+    assert.notEqual(lastFetchable, -1, "expected at least one fetchable result to order against");
+    assert.notEqual(firstGated, -1, "expected at least one gated result to order against");
+    assert.ok(lastFetchable < firstGated, "a deliverable result must outrank a gated one");
   });
 
   test("fetchable entries are not crowded out of a provider's own result slice", opts, async () => {

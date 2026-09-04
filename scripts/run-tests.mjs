@@ -2,12 +2,14 @@
  * Test runner with a version preflight.
  *
  * The published artifact is compiled JS and runs on Node 18, which is what `engines` declares.
- * The tests themselves execute TypeScript directly, which needs Node 22.6+. Without this check
+ * The tests themselves execute TypeScript directly with no flag, which needs the unflagged type
+ * stripping that landed in Node 22.18 (the 23.6 backport) - not 22.6, which still required
+ * --experimental-strip-types. Without this check
  * a contributor on 18 or 20 just gets `Unknown file extension ".ts"`.
  */
 import { spawnSync } from "node:child_process";
 
-const REQUIRED = [22, 6];
+const REQUIRED = [22, 18];
 const [major, minor] = process.versions.node.split(".").map(Number);
 if (major < REQUIRED[0] || (major === REQUIRED[0] && minor < REQUIRED[1])) {
   console.error(

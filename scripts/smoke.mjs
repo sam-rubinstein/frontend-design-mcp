@@ -27,9 +27,11 @@ const transport = new StdioClientTransport({
   cwd: process.cwd(),
 });
 const client = new Client({ name: "smoke", version: "0.1.0" });
-await client.connect(transport);
 
+// connect() is inside the try so a failed handshake still cleans up the temp workdir.
 try {
+  await client.connect(transport);
+
   const { tools } = await client.listTools();
   const names = tools.map((t) => t.name).sort();
   check("server advertises 8 tools over stdio", names.length === 8, names.join(", "));
@@ -125,7 +127,7 @@ try {
   const gatedProviders = new Set(search.results.filter((r) => !r.fetchable).map((r) => r.provider));
   check(
     "every gated provider is explained once, not per row",
-    [...gatedProviders].every((p) => Boolean(search.gating?.[p])),
+    gatedProviders.size > 0 && [...gatedProviders].every((p) => Boolean(search.gating?.[p])),
     Object.keys(search.gating ?? {}).join(", "),
   );
 

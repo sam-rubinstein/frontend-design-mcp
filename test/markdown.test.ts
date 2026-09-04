@@ -139,6 +139,18 @@ describe("section slicing", () => {
   test("returns undefined for an unknown section", () => {
     assert.equal(sliceSection(stripe, "Nonexistent Section"), undefined);
   });
+
+  test("an exact match wins over an earlier prefix match", () => {
+    // Regression: a single findIndex over (exact || prefix) returned "Colors Extended" for a
+    // request of "Colors" purely because it appeared first in the document.
+    const doc = ["## Colors Extended", "", "wrong", "", "## Colors", "", "right"].join("\n");
+    assert.ok(sliceSection(doc, "Colors")?.startsWith("## Colors\n"));
+  });
+
+  test("prefix matching still works when there is no exact match", () => {
+    const doc = ["## Colors Extended", "", "only option"].join("\n");
+    assert.ok(sliceSection(doc, "Colors")?.startsWith("## Colors Extended"));
+  });
 });
 
 describe("section listing", () => {

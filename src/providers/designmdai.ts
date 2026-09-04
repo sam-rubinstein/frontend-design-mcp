@@ -74,7 +74,8 @@ export class DesignMdAiProvider implements Provider {
       headers: this.authHeaders(),
     });
 
-    return (res.data ?? []).flatMap((hit) => {
+    const hits = Array.isArray(res.data) ? res.data : [];
+    return hits.flatMap((hit) => {
       const username = hit.author?.username;
       if (!hit.slug || !username) return [];
       const slug = `${username}/${hit.slug}`;
@@ -85,8 +86,8 @@ export class DesignMdAiProvider implements Provider {
         name: hit.name ?? hit.slug,
         description: hit.description,
         url: hit.url ?? `https://designmd.ai/${slug}`,
-        tags: hit.tags,
-        previewColors: hit.preview_colors,
+        tags: Array.isArray(hit.tags) ? hit.tags : undefined,
+        previewColors: Array.isArray(hit.preview_colors) ? hit.preview_colors : undefined,
         fetchable: this.hasKey,
         gatedReason: this.hasKey
           ? undefined
@@ -101,7 +102,10 @@ export class DesignMdAiProvider implements Provider {
     const res = await httpGetJson<{ data?: { name?: string; count?: number }[] }>(
       `${API_BASE}/tags`,
     );
-    return (res.data ?? []).flatMap((t) => (t.name ? [{ name: t.name, count: t.count ?? 0 }] : []));
+    const rows = Array.isArray(res.data) ? res.data : [];
+    return rows.flatMap((t) =>
+      typeof t?.name === "string" ? [{ name: t.name, count: t.count ?? 0 }] : [],
+    );
   }
 
   async get(slug: string): Promise<DesignDocument> {

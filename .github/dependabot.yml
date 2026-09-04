@@ -1,0 +1,20 @@
+version: 2
+updates:
+  # The workflows pin actions to commit SHAs, which is only safe if something bumps them.
+  # Without this, a pin quietly rots into an unpatched version.
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: monthly
+    commit-message:
+      prefix: ci
+
+  - package-ecosystem: npm
+    directory: "/"
+    schedule:
+      interval: monthly
+    commit-message:
+      prefix: deps
+    groups:
+      dev-dependencies:
+        dependency-type: development

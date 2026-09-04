@@ -149,7 +149,13 @@ export function createServer(env: NodeJS.ProcessEnv = process.env, cwd = process
         "enable anything currently gated (for example a missing DESIGNMD_API_KEY).",
       inputSchema: {},
     },
-    async () => json({ providers: registry.capabilities() }),
+    async () => {
+      try {
+        return json({ providers: registry.capabilities() });
+      } catch (err) {
+        return failure(`Could not read provider status: ${(err as Error).message}`);
+      }
+    },
   );
 
   server.registerTool(
@@ -192,30 +198,38 @@ export function createServer(env: NodeJS.ProcessEnv = process.env, cwd = process
       },
     },
     async ({ query, limit, providers, tags, fetchable_only, deep }) => {
-      const outcome = await registry.search({ query, limit, providers, tags, deep });
-      const results = fetchable_only ? outcome.results.filter((r) => r.fetchable) : outcome.results;
-      // One explanation per provider instead of the same sentence on every gated row.
-      const gating: Record<string, string> = {};
-      for (const r of results) {
-        if (!r.fetchable && r.gatedReason && !gating[r.provider])
-          gating[r.provider] = r.gatedReason;
+      try {
+        const outcome = await registry.search({ query, limit, providers, tags, deep });
+        const results = fetchable_only
+          ? outcome.results.filter((r) => r.fetchable)
+          : outcome.results;
+        // One explanation per provider instead of the same sentence on every gated row.
+        const gating: Record<string, string> = {};
+        for (const r of results) {
+          if (!r.fetchable && r.gatedReason && !gating[r.provider])
+            gating[r.provider] = r.gatedReason;
+        }
+        return json({
+          count: results.length,
+          warnings: outcome.warnings.length ? outcome.warnings : undefined,
+          gating: Object.keys(gating).length ? gating : undefined,
+          results: results.map((r) => ({
+            id: r.id,
+            name: r.name,
+            provider: r.provider,
+            description: trimDescription(r.description),
+            tags: r.tags,
+            preview_colors: r.previewColors,
+            url: r.url,
+            tier: r.tier,
+            fetchable: r.fetchable,
+          })),
+        });
+      } catch (err) {
+        // The registry already degrades a single failed provider into a warning, so reaching
+        // here means something broader broke.
+        return failure(`Search failed: ${(err as Error).message}`);
       }
-      return json({
-        count: results.length,
-        warnings: outcome.warnings.length ? outcome.warnings : undefined,
-        gating: Object.keys(gating).length ? gating : undefined,
-        results: results.map((r) => ({
-          id: r.id,
-          name: r.name,
-          provider: r.provider,
-          description: trimDescription(r.description),
-          tags: r.tags,
-          preview_colors: r.previewColors,
-          url: r.url,
-          tier: r.tier,
-          fetchable: r.fetchable,
-        })),
-      });
     },
   );
 

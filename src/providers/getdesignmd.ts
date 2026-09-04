@@ -77,7 +77,10 @@ export class GetDesignMdProvider implements Provider {
     const raw = await cachedGet(INDEX_URL, force ? { force: true } : { maxAgeMs: INDEX_TTL_MS });
     const parsed = JSON.parse(raw) as SkillIndex;
     const map = new Map<string, SkillEntry>();
-    for (const entry of parsed.skills ?? []) {
+    const skills = Array.isArray(parsed?.skills) ? parsed.skills : [];
+    for (const entry of skills) {
+      // Skip malformed entries rather than letting one bad row poison the whole catalog.
+      if (typeof entry?.name !== "string" || typeof entry?.url !== "string") continue;
       map.set(slugFromName(entry.name), entry);
     }
     this.indexCache = { map, at: Date.now() };
@@ -212,17 +215,22 @@ export class GetDesignMdProvider implements Provider {
       );
     }
 
-    const content = await cachedGet(entry.url, { maxAgeMs: CONTENT_TTL_MS });
-    const actual = sha256Hex(content);
+    let content = await cachedGet(entry.url, { maxAgeMs: CONTENT_TTL_MS });
+    let actual = sha256Hex(content);
     let expected = digestFromEntry(entry);
 
-    // A mismatch usually means our index is simply stale: the site republished the file and our
-    // cached index still carries the previous digest. Re-read the index before crying tamper -
-    // otherwise a routine upstream update surfaces as a security error and locks the design out
-    // for the length of the TTL.
+    // A mismatch usually means something is merely stale, not tampered: either the cached index
+    // still carries a previous digest, or the cached document is older than a republish. Refresh
+    // BOTH sides before crying tamper - refreshing only the index leaves a document served from
+    // the content TTL disagreeing with a freshly-read digest, which turns a routine upstream
+    // update into a security error.
     if (expected && expected !== actual) {
       const refreshed = (await this.index(true)).get(slug);
       expected = refreshed ? digestFromEntry(refreshed) : undefined;
+      if (expected && expected !== actual) {
+        content = await cachedGet(entry.url, { force: true });
+        actual = sha256Hex(content);
+      }
     }
 
     if (expected && expected !== actual) {

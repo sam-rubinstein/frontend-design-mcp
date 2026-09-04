@@ -117,7 +117,11 @@ export function listSections(content: string): Section[] {
 export function sliceSection(content: string, name: string): string | undefined {
   const sections = listSections(content);
   const want = sectionKey(name);
-  const idx = sections.findIndex((s) => s.key === want || s.key.startsWith(want));
+  // Exact match wins wherever it sits in the document. A single findIndex over
+  // (exact || prefix) would return "Colors Extended" for a request of "Colors" purely
+  // because it appears first.
+  const exact = sections.findIndex((s) => s.key === want);
+  const idx = exact !== -1 ? exact : sections.findIndex((s) => s.key.startsWith(want));
   if (idx === -1) return undefined;
 
   const lines = content.split(/\r?\n/);
