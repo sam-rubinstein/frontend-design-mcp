@@ -37,21 +37,26 @@ when fixing a visual bug — and which call is cheapest.
 
 **Grok**
 
-```text
+```bash
 grok plugin marketplace add sam-rubinstein/frontend-design-mcp
-grok plugin install frontend-design@frontend-design-mcp
 ```
 
-Inside the TUI, open `/plugins` after adding the marketplace and install `frontend-design`.
+Then open `/marketplace` in the TUI and press `i` on `frontend-design`. Or skip the catalog and
+install the repo directly:
+
+```bash
+grok plugin install sam-rubinstein/frontend-design-mcp --trust
+```
 
 **Codex**
 
 ```bash
 codex plugin marketplace add sam-rubinstein/frontend-design-mcp
-codex plugin add frontend-design@frontend-design-mcp
 ```
 
-Or open `/plugins` and install `frontend-design`. Start a new session afterwards.
+Then open `/plugins` and install `frontend-design`, or run
+`/plugin install frontend-design@frontend-design-mcp` in the session. Start a new session
+afterwards.
 
 ### MCP server only
 
@@ -60,14 +65,14 @@ For Cursor, Windsurf, Zed, or if you already have the skill some other way.
 **Claude Code**
 
 ```bash
-claude mcp add -s user design -- npx -y github:sam-rubinstein/frontend-design-mcp#19efd6e
+claude mcp add -s user design -- npx -y frontend-design-mcp@^0.1.0
 claude mcp list   # `design` should show as connected
 ```
 
 **Codex**
 
 ```bash
-codex mcp add design -- npx -y github:sam-rubinstein/frontend-design-mcp#19efd6e
+codex mcp add design -- npx -y frontend-design-mcp@^0.1.0
 codex mcp list
 ```
 
@@ -79,7 +84,7 @@ Restart Codex if it was already running.
 ```toml
 [mcp_servers.design]
 command = "npx"
-args = ["-y", "github:sam-rubinstein/frontend-design-mcp#19efd6e"]
+args = ["-y", "frontend-design-mcp@^0.1.0"]
 ```
 
 </details>
@@ -87,7 +92,7 @@ args = ["-y", "github:sam-rubinstein/frontend-design-mcp#19efd6e"]
 **Grok CLI**
 
 ```bash
-grok mcp add design -- npx -y github:sam-rubinstein/frontend-design-mcp#19efd6e
+grok mcp add design -- npx -y frontend-design-mcp@^0.1.0
 grok mcp list
 ```
 
@@ -99,7 +104,7 @@ Tools show up namespaced, as `design__search_designs` and so on.
 ```toml
 [mcp_servers.design]
 command = "npx"
-args = ["-y", "github:sam-rubinstein/frontend-design-mcp#19efd6e"]
+args = ["-y", "frontend-design-mcp@^0.1.0"]
 ```
 
 </details>
@@ -113,7 +118,7 @@ Add this to the client's MCP config file:
   "mcpServers": {
     "design": {
       "command": "npx",
-      "args": ["-y", "github:sam-rubinstein/frontend-design-mcp#19efd6e"]
+      "args": ["-y", "frontend-design-mcp@^0.1.0"]
     }
   }
 }
@@ -127,13 +132,13 @@ Searching designmd.ai needs no key. Downloading its community kits needs a free 
 <https://designmd.ai/api-keys>:
 
 ```bash
-claude mcp add -s user design -e DESIGNMD_API_KEY=dk_your_key -- npx -y github:sam-rubinstein/frontend-design-mcp#19efd6e
+claude mcp add -s user design -e DESIGNMD_API_KEY=dk_your_key -- npx -y frontend-design-mcp@^0.1.0
 ```
 
 Codex takes the same idea as a flag:
 
 ```bash
-codex mcp add design --env DESIGNMD_API_KEY=dk_your_key -- npx -y github:sam-rubinstein/frontend-design-mcp#19efd6e
+codex mcp add design --env DESIGNMD_API_KEY=dk_your_key -- npx -y frontend-design-mcp@^0.1.0
 ```
 
 Grok's `mcp add` has no env flag, so put it in `~/.grok/config.toml`:
@@ -141,11 +146,13 @@ Grok's `mcp add` has no env flag, so put it in `~/.grok/config.toml`:
 ```toml
 [mcp_servers.design]
 command = "npx"
-args = ["-y", "github:sam-rubinstein/frontend-design-mcp#19efd6e"]
+args = ["-y", "frontend-design-mcp@^0.1.0"]
 env = { DESIGNMD_API_KEY = "dk_your_key" }
 ```
 
-Without a key nothing vanishes — gated results still appear, labelled with what they need.
+Installed as a plugin, the key is read from your environment instead — export `DESIGNMD_API_KEY`
+before starting the agent. Without a key nothing vanishes: gated results still appear, labelled
+with what they need.
 
 ## What your agent gets
 

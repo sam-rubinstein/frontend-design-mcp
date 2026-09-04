@@ -2,9 +2,9 @@
   "mcpServers": {
     "design": {
       "command": "npx",
-      "args": ["-y", "github:sam-rubinstein/frontend-design-mcp#19efd6e"],
+      "args": ["-y", "frontend-design-mcp@^0.1.0"],
       "env": {
-        "DESIGNMD_API_KEY": "${DESIGNMD_API_KEY}"
+        "DESIGNMD_API_KEY": "${DESIGNMD_API_KEY:-}"
       }
     }
   }

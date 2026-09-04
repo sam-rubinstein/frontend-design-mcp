@@ -14,6 +14,7 @@
     ".agents",
     ".claude-plugin",
     ".codex-plugin",
+    ".grok-plugin",
     ".mcp.json",
     "README.md"
   ],
@@ -22,6 +23,7 @@
   },
   "scripts": {
     "build": "tsc",
+    "prepare": "npm run build",
     "test": "node scripts/run-tests.mjs",
     "dev": "tsc --watch",
     "test:live": "node scripts/run-tests.mjs --live",
