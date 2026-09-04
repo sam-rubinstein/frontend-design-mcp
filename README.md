@@ -112,7 +112,20 @@ Searching designmd.ai needs no key. Downloading its community kits needs a free 
 claude mcp add -s user design -e DESIGNMD_API_KEY=dk_your_key -- npx -y frontend-design-mcp
 ```
 
-Codex and Grok take `--env DESIGNMD_API_KEY=dk_your_key` on their `mcp add` commands.
+Codex takes the same idea as a flag:
+
+```bash
+codex mcp add design --env DESIGNMD_API_KEY=dk_your_key -- npx -y frontend-design-mcp
+```
+
+Grok's `mcp add` has no env flag, so put it in `~/.grok/config.toml`:
+
+```toml
+[mcp_servers.design]
+command = "npx"
+args = ["-y", "frontend-design-mcp"]
+env = { DESIGNMD_API_KEY = "dk_your_key" }
+```
 
 Without a key nothing vanishes — gated results still appear, labelled with what they need.
 
