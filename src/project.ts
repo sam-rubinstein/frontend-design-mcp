@@ -55,7 +55,7 @@ function provenanceOf(
 
 /** The document without its provenance marker, for hashing against the recorded digest. */
 function withoutProvenance(content: string): string {
-  return content.replace(PROVENANCE_RE, "").trimEnd() + "\n";
+  return `${content.replace(PROVENANCE_RE, "").trimEnd()}\n`;
 }
 
 async function exists(path: string): Promise<boolean> {
@@ -126,7 +126,7 @@ export async function installDesign(
     );
   }
 
-  const body = doc.content.trimEnd() + "\n";
+  const body = `${doc.content.trimEnd()}\n`;
   const marker =
     `\n<!-- ${PROVENANCE_LABEL}: source=${doc.id} sha256=${sha256Hex(body)} ` +
     `installed=${new Date().toISOString()} -->\n`;
