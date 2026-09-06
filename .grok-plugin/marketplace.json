@@ -8,7 +8,7 @@
       "description": "Searches getdesign.md, designmd.app and designmd.ai for DESIGN.md design systems and returns only the slice your agent asked for. Bundles the MCP server and the skill that tells the agent when to use it.",
       "category": "development",
       "source": { "type": "local", "path": "./plugins/frontend-design" },
-      "version": "0.1.0",
+      "version": "0.1.1",
       "author": { "name": "Sam Rubinstein" },
       "homepage": "https://github.com/sam-rubinstein/frontend-design-mcp",
       "keywords": ["design.md", "designmd", "getdesign.md", "design system", "design tokens"],
