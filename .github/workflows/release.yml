@@ -121,9 +121,40 @@ jobs:
       # No NODE_AUTH_TOKEN: setup-node plus id-token:write completes the OIDC handshake.
       - run: npm publish
 
+      # A published version is not installable straight away. npm scans every publish for malware
+      # first, and npm's guidance is explicit: "This introduces a short delay between publishing and
+      # availability, typically around five minutes. It may take longer, up to 15 minutes or more,
+      # at peak times [...] If you have automation that assumes a package is installable immediately
+      # after publishing, update it to tolerate a short availability delay."
+      # https://github.blog/changelog/2026-07-28-npm-publish-time-malware-scanning-and-dual-use-metadata/
+      #
+      # The 0.1.1 release is what this is written from: the publish landed at 16:37:20.358Z and the
+      # npx below ran at 16:37:21.358Z, one second later, failing with `ETARGET No matching version
+      # found` for a version that had just been published and was fine minutes afterwards.
+      #
+      # 20 minutes, not the five the delay "typically" takes: the whole point is to outlast a peak.
+      # Timing out here means the publish went through but nobody can install it - worth a red run.
+      - name: Wait for the published version to become installable
+        run: |
+          published=$(node -p "require('./package.json').version")
+          for attempt in $(seq 1 120); do
+            if npm view "frontend-design-mcp@$published" version --prefer-online >/dev/null 2>&1; then
+              echo "$published resolves after $(( attempt * 10 ))s"
+              exit 0
+            fi
+            sleep 10
+          done
+          echo "frontend-design-mcp@$published was published but still does not resolve after 20 minutes." >&2
+          echo "Check https://www.npmjs.com/package/frontend-design-mcp before re-running." >&2
+          exit 1
+
       # The plugins install this package by spec, so the thing worth checking is that the spec
       # resolves and the server answers - not that a local build did.
       - name: Published package starts over stdio
+        env:
+          # The lookup above already warmed the packument, but do not let a cache entry written
+          # while the version was still missing decide whether this release passes.
+          npm_config_prefer_online: "true"
         run: |
           published=$(node -p "require('./package.json').version")
           cd "$(mktemp -d)"
@@ -132,12 +163,20 @@ jobs:
             '{"jsonrpc":"2.0","method":"notifications/initialized"}' \
             '{"jsonrpc":"2.0","id":2,"method":"tools/list","params":{}}' > in.jsonl
           npx -y "frontend-design-mcp@$published" < in.jsonl > out.jsonl
-          node -e '
+          PUBLISHED="$published" node -e '
             const lines = require("fs").readFileSync("out.jsonl", "utf8")
               .trim().split("\n").filter(Boolean).map(JSON.parse);
             const tools = lines.find((l) => l.id === 2)?.result?.tools ?? [];
             if (tools.length !== 8) {
               console.error(`expected 8 tools from the published package, got ${tools.length}`);
+              process.exit(1);
+            }
+            // 0.1.0 shipped announcing 0.1.0 from a literal that nobody had bumped since. The
+            // test suite guards that literal now; this is the same check against the artifact
+            // a user actually installs.
+            const advertised = lines.find((l) => l.id === 1)?.result?.serverInfo?.version;
+            if (advertised !== process.env.PUBLISHED) {
+              console.error(`published ${process.env.PUBLISHED} but it announces ${advertised}`);
               process.exit(1);
             }
             console.log("published server advertises:", tools.map((t) => t.name).sort().join(", "));
