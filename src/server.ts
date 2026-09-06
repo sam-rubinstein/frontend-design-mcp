@@ -79,7 +79,7 @@ function wrapUntrusted(source: string, body: string): string {
 export function createServer(env: NodeJS.ProcessEnv = process.env, cwd = process.cwd()): McpServer {
   const registry = new Registry(env);
   const server = new McpServer(
-    { name: "frontend-design-mcp", version: "0.1.0" },
+    { name: "frontend-design-mcp", version: "0.1.1" },
     { capabilities: { tools: {} }, instructions: SERVER_INSTRUCTIONS },
   );
 

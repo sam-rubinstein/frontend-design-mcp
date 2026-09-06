@@ -119,4 +119,15 @@ test("the plugin version tracks the package version everywhere it is written dow
   ]) {
     assert.equal((await readJson(path)).version, pkgVersion, `${path} is out of step`);
   }
+
+  // The version in the initialize handshake is a literal in src/, not a read of package.json,
+  // and the SDK keeps serverInfo private - so this reads the build. A drift here is invisible
+  // to every other assertion in this file and shows up as a client reporting a stale version.
+  const built = await readFile(resolve("dist/server.js"), "utf8");
+  const advertised = String(pkgVersion).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  assert.match(
+    built,
+    new RegExp(`name:\\s*"frontend-design-mcp",\\s*version:\\s*"${advertised}"`),
+    "the version the server advertises over MCP is out of step with package.json",
+  );
 });

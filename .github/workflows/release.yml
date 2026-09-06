@@ -24,8 +24,10 @@ name: Release
 #      That last field matters. Trusted publishers created after 3 September 2026 default to
 #      stage-only, and the `npm publish` below is rejected unless direct publishing is allowed.
 #
-# To cut a release: bump `version` in package.json and the three plugin manifests together
-# (test/plugin.test.ts fails if they drift), commit, then push a matching tag:
+# To cut a release, bump the version everywhere it is written down - package.json, the two
+# marketplace catalogs that carry one, the three plugin manifests, the exact npm spec in
+# plugins/frontend-design/.mcp.json, and the serverInfo literal in src/server.ts. test/plugin.test.ts
+# fails on any of them drifting. Then commit and push a matching tag:
 #   git tag v0.1.1 && git push origin v0.1.1
 
 on:
