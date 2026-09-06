@@ -16,6 +16,19 @@ import { DesignMdAiProvider } from "./designmdai.js";
 import { DesignMdAppProvider } from "./designmdapp.js";
 import { GetDesignMdProvider } from "./getdesignmd.js";
 
+/**
+ * Plugin `.mcp.json` files declare the key as `${DESIGNMD_API_KEY}`. Claude Code substitutes it;
+ * other hosts pass the placeholder through verbatim, and a literal `${...}` is truthy enough to
+ * make the provider claim it can fetch and then send `Bearer ${DESIGNMD_API_KEY}` for a
+ * guaranteed 401. Treat an unsubstituted placeholder as no key, so the user gets the honest
+ * "needs a key" gating instead of an auth error.
+ */
+function readApiKey(raw: string | undefined): string | undefined {
+  const key = raw?.trim();
+  if (!key || /^\$\{[^}]*\}$/.test(key)) return undefined;
+  return key;
+}
+
 export interface SearchOutcome {
   results: DesignSummary[];
   /** One line per provider that failed; empty when every provider answered. */
@@ -29,7 +42,7 @@ export class Registry {
     this.providers = [
       new GetDesignMdProvider(),
       new DesignMdAppProvider(),
-      new DesignMdAiProvider(env.DESIGNMD_API_KEY),
+      new DesignMdAiProvider(readApiKey(env.DESIGNMD_API_KEY)),
     ];
   }
 

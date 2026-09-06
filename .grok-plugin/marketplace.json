@@ -1,18 +1,18 @@
 {
-  "$schema": "https://code.claude.com/schemas/marketplace.json",
   "name": "frontend-design-mcp",
-  "owner": { "name": "Sam Rubinstein", "url": "https://github.com/sam-rubinstein" },
   "description": "Design systems for coding agents.",
+  "owner": { "name": "Sam Rubinstein" },
   "plugins": [
     {
       "name": "frontend-design",
-      "source": "./plugins/frontend-design",
       "description": "Searches getdesign.md, designmd.app and designmd.ai for DESIGN.md design systems and returns only the slice your agent asked for. Bundles the MCP server and the skill that tells the agent when to use it.",
+      "category": "development",
+      "source": { "type": "local", "path": "./plugins/frontend-design" },
       "version": "0.1.0",
       "author": { "name": "Sam Rubinstein" },
-      "license": "BSD-3-Clause",
-      "category": "Design",
-      "keywords": ["design", "design-system", "design-tokens", "frontend", "ui"]
+      "homepage": "https://github.com/sam-rubinstein/frontend-design-mcp",
+      "keywords": ["design.md", "designmd", "getdesign.md", "design system", "design tokens"],
+      "domains": ["getdesign.md", "designmd.app", "designmd.ai"]
     }
   ]
 }

@@ -10,11 +10,7 @@
   "main": "dist/index.js",
   "files": [
     "dist",
-    "skills",
-    ".agents",
-    ".claude-plugin",
-    ".codex-plugin",
-    ".mcp.json",
+    "plugins",
     "README.md"
   ],
   "engines": {
@@ -22,6 +18,7 @@
   },
   "scripts": {
     "build": "tsc",
+    "prepare": "npm run build",
     "test": "node scripts/run-tests.mjs",
     "dev": "tsc --watch",
     "test:live": "node scripts/run-tests.mjs --live",
